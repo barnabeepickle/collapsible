@@ -1,0 +1,37 @@
+{
+	"schemaVersion": 1,
+	"id": "collateral",
+	"version": "${version}",
+	"name": "Collateral",
+	"description": "A simple vein mining mod.",
+	"authors": [
+		"bios"
+	],
+	"contact": {
+		"homepage": "",
+		"sources": "https://github.com/ShoaibMSyed/collateral"
+	},
+	"license": "MIT",
+	"icon": "assets/collateral/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.bios.Collateral"
+		],
+		"client": [
+			"com.bios.CollateralClient"
+		]
+	},
+	"mixins": [
+		"collateral.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.16.5",
+		"minecraft": "~1.21.1",
+		"java": ">=21",
+		"fabric-api": "*"
+	},
+	"suggests": {
+		"another-mod": "*"
+	}
+}
