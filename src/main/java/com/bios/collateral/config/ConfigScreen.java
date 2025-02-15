@@ -3,7 +3,6 @@ package com.bios.collateral.config;
 import me.shedaniel.clothconfig2.api.ConfigBuilder;
 import me.shedaniel.clothconfig2.api.ConfigCategory;
 import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
-import me.shedaniel.clothconfig2.impl.builders.DropdownMenuBuilder;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.TagKey;
@@ -46,14 +45,12 @@ public class ConfigScreen {
         general.addEntry(entryBuilder.startStrList(Text.translatable("config.collateral.connected_tags"), tags)
                 .setDefaultValue(defaultTags)
                 .setTooltip(Text.translatable("config.collateral.connected_tags.tooltip"))
-                .setSaveConsumer(next -> {
-                    config.connectedTags = next
-                            .stream()
-                            .map(Identifier::tryParse)
-                            .filter(Objects::nonNull)
-                            .map(i -> TagKey.of(RegistryKeys.ITEM, i))
-                            .collect(Collectors.toSet());
-                })
+                .setSaveConsumer(next -> config.connectedTags = next
+                        .stream()
+                        .map(Identifier::tryParse)
+                        .filter(Objects::nonNull)
+                        .map(i -> TagKey.of(RegistryKeys.BLOCK, i))
+                        .collect(Collectors.toSet()))
                 .build());
 
         return builder.build();

@@ -2,9 +2,12 @@ package com.bios.collateral.config;
 
 import com.bios.collateral.Collateral;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.registry.tag.ItemTags;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.Identifier;
@@ -12,6 +15,7 @@ import net.minecraft.util.Identifier;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Set;
@@ -30,14 +34,15 @@ public class Config {
 
     public int blockLimit = 512;
     public int blockLimitPerTick = 27;
-    public Set<TagKey<Item>> connectedTags = Stream.of(
-            ItemTags.COAL_ORES,
-            ItemTags.COPPER_ORES,
-            ItemTags.IRON_ORES,
-            ItemTags.REDSTONE_ORES,
-            ItemTags.LAPIS_ORES,
-            ItemTags.EMERALD_ORES,
-            ItemTags.DIAMOND_ORES
+    public Set<TagKey<Block>> connectedTags = Stream.of(
+            BlockTags.COAL_ORES,
+            BlockTags.COPPER_ORES,
+            BlockTags.IRON_ORES,
+            BlockTags.GOLD_ORES,
+            BlockTags.REDSTONE_ORES,
+            BlockTags.LAPIS_ORES,
+            BlockTags.EMERALD_ORES,
+            BlockTags.DIAMOND_ORES
     ).collect(Collectors.toSet());
 
     public static Config read() {
@@ -45,7 +50,7 @@ public class Config {
         String json;
         try {
             json = Files.readString(configPath());
-        } catch (FileNotFoundException e) {
+        } catch (NoSuchFileException e) {
             Collateral.LOGGER.info("config file not found, creating a new one");
             Config config = new Config();
             config.write();
@@ -66,7 +71,9 @@ public class Config {
     private Config() {}
 
     public void write() {
-        Gson gson = new Gson();
+        Gson gson = new GsonBuilder()
+                .setPrettyPrinting()
+                .create();
         String json = gson.toJson(new JsonConfig(this));
         try {
             Files.writeString(configPath(), json, StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
@@ -79,7 +86,7 @@ public class Config {
         return FabricLoader
                 .getInstance()
                 .getConfigDir()
-                .resolve(Collateral.MOD_ID + ".json5");
+                .resolve(Collateral.MOD_ID + ".json");
     }
 
     static class JsonConfig {
@@ -105,7 +112,7 @@ public class Config {
             config.connectedTags = this
                     .connectedTags
                     .stream()
-                    .map(s -> TagKey.of(RegistryKeys.ITEM, Identifier.of(s)))
+                    .map(s -> TagKey.of(RegistryKeys.BLOCK, Identifier.of(s)))
                     .collect(Collectors.toSet());
             return config;
         }

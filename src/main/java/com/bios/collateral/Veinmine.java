@@ -5,17 +5,22 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.tag.BlockTags;
+import net.minecraft.registry.tag.TagKey;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 
 import java.util.*;
+import java.util.function.Predicate;
 
 public class Veinmine implements CollateralTask {
     private final ServerWorld world;
     private final ServerPlayerEntity player;
     private final int lastSlot;
-    private final Block block;
+    private final Predicate<BlockState> blockPredicate;
 
     private final Set<BlockPos> searched;
     private final ArrayDeque<BlockPos> toSearch;
@@ -23,7 +28,7 @@ public class Veinmine implements CollateralTask {
     private int totalBroken;
     private boolean toolBroken;
 
-    private Veinmine(ServerWorld world, ServerPlayerEntity player, BlockPos pos, int lastSlot, Block block) {
+    private Veinmine(ServerWorld world, ServerPlayerEntity player, BlockPos pos, int lastSlot, BlockState blockState) {
         this.searched = new HashSet<>();
         this.toSearch = new ArrayDeque<>();
         this.toSearch.add(pos);
@@ -31,7 +36,18 @@ public class Veinmine implements CollateralTask {
         this.world = world;
         this.player = player;
         this.lastSlot = lastSlot;
-        this.block = block;
+
+        List<TagKey<Block>> tags = blockState
+                .streamTags()
+                .filter(tag -> Config.getConfig().connectedTags.contains(tag))
+                .toList();
+
+        if (tags.isEmpty()) {
+            this.blockPredicate = state -> state.isOf(blockState.getBlock());
+        } else {
+            this.blockPredicate = state -> state.isOf(blockState.getBlock())
+                    || tags.stream().anyMatch(state::isIn);
+        }
 
         this.totalBroken = 0;
         this.toolBroken = false;
@@ -39,16 +55,16 @@ public class Veinmine implements CollateralTask {
 
     public static void veinmine(ServerPlayerEntity player, BlockPos pos) {
         int lastSlot = player.getInventory().selectedSlot;
-        Block block = player.getWorld().getBlockState(pos).getBlock();
+        BlockState blockState = player.getWorld().getBlockState(pos);
 
-        Veinmine task = new Veinmine(player.getServerWorld(), player, pos, lastSlot, block);
+        Veinmine task = new Veinmine(player.getServerWorld(), player, pos, lastSlot, blockState);
 
         CollateralTasks.TASKS.add(task);
     }
 
     private boolean breakBlock(BlockPos pos) {
         BlockState state = world.getBlockState(pos);
-        if (!state.isOf(block)) return false;
+        if (!this.blockPredicate.test(state)) return false;
 
         List<ItemStack> drops = Block.getDroppedStacks(state, world, pos, world.getBlockEntity(pos), player, player.getMainHandStack());
         world.breakBlock(pos, false, player);
