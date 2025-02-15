@@ -4,6 +4,7 @@ import me.shedaniel.clothconfig2.api.ConfigBuilder;
 import me.shedaniel.clothconfig2.api.ConfigCategory;
 import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.text.Text;
@@ -53,6 +54,34 @@ public class ConfigScreen {
                         .collect(Collectors.toSet()))
                 .build());
 
+        ListType defaultListType = def.banList ? ListType.BanList : ListType.AllowList;
+        ListType listType = config.banList ? ListType.BanList : ListType.AllowList;
+
+        general.addEntry(entryBuilder.startSelector(Text.translatable("config.collateral.list_type"), new ListType[] { ListType.AllowList, ListType.BanList }, listType)
+                        .setDefaultValue(defaultListType)
+                        .setTooltip(Text.translatable("config.collateral.list_type.tooltip"))
+                        .setSaveConsumer(next -> config.banList = next == ListType.BanList)
+                .build());
+
+        List<String> defaultBlocks = config.blockList.stream().map(Registries.BLOCK::getId).map(Identifier::toString).toList();
+        List<String> blocks = config.blockList.stream().map(Registries.BLOCK::getId).map(Identifier::toString).toList();
+
+        general.addEntry(entryBuilder.startStrList(Text.translatable("config.collateral.block_list"), blocks)
+                .setDefaultValue(defaultBlocks)
+                .setTooltip(Text.translatable("config.collateral.block_list.tooltip"))
+                .setSaveConsumer(next -> config.blockList = next
+                        .stream()
+                        .map(Identifier::tryParse)
+                        .filter(Objects::nonNull)
+                        .map(Registries.BLOCK::get)
+                        .collect(Collectors.toSet()))
+                .build());
+
         return builder.build();
+    }
+
+    private enum ListType {
+        AllowList,
+        BanList
     }
 }

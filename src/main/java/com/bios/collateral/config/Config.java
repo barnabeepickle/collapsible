@@ -5,19 +5,20 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.Block;
-import net.minecraft.item.Item;
+import net.minecraft.block.BlockState;
+import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.BlockTags;
-import net.minecraft.registry.tag.ItemTags;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.Identifier;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -33,7 +34,9 @@ public class Config {
     }
 
     public int blockLimit = 512;
+
     public int blockLimitPerTick = 27;
+
     public Set<TagKey<Block>> connectedTags = Stream.of(
             BlockTags.COAL_ORES,
             BlockTags.COPPER_ORES,
@@ -44,6 +47,19 @@ public class Config {
             BlockTags.EMERALD_ORES,
             BlockTags.DIAMOND_ORES
     ).collect(Collectors.toSet());
+
+    public boolean banList = true;
+
+    public Set<Block> blockList = new HashSet<>();
+
+    public boolean isBlockVeinmineable(BlockState blockState) {
+        Collateral.LOGGER.info("ban: {}", this.banList);
+        if (this.banList) {
+            return !blockList.contains(blockState.getBlock());
+        } else {
+            return blockList.contains(blockState.getBlock());
+        }
+    }
 
     public static Config read() {
         Gson gson = new Gson();
@@ -64,7 +80,7 @@ public class Config {
         return config.toConfig();
     }
 
-    public static Config getDefault() {
+    static Config getDefault() {
         return new Config();
     }
 
@@ -90,9 +106,11 @@ public class Config {
     }
 
     static class JsonConfig {
-        int blockLimit;
-        int blockLimitPerTick;
-        Set<String> connectedTags;
+        final int blockLimit;
+        final int blockLimitPerTick;
+        final Set<String> connectedTags;
+        final boolean banList;
+        final Set<String> blockList;
 
         JsonConfig(Config config) {
             this.blockLimit = config.blockLimit;
@@ -101,6 +119,13 @@ public class Config {
                     .connectedTags
                     .stream()
                     .map(TagKey::id)
+                    .map(Identifier::toString)
+                    .collect(Collectors.toSet());
+            this.banList = config.banList;
+            this.blockList = config
+                    .blockList
+                    .stream()
+                    .map(Registries.BLOCK::getId)
                     .map(Identifier::toString)
                     .collect(Collectors.toSet());
         }
@@ -113,6 +138,13 @@ public class Config {
                     .connectedTags
                     .stream()
                     .map(s -> TagKey.of(RegistryKeys.BLOCK, Identifier.of(s)))
+                    .collect(Collectors.toSet());
+            config.banList = this.banList;
+            config.blockList = this.blockList
+                    .stream()
+                    .map(Identifier::tryParse)
+                    .filter(Objects::nonNull)
+                    .map(Registries.BLOCK::get)
                     .collect(Collectors.toSet());
             return config;
         }

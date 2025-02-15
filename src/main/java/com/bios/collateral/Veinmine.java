@@ -5,12 +5,9 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 
 import java.util.*;
@@ -65,6 +62,7 @@ public class Veinmine implements CollateralTask {
     private boolean breakBlock(BlockPos pos) {
         BlockState state = world.getBlockState(pos);
         if (!this.blockPredicate.test(state)) return false;
+        if (!Config.getConfig().isBlockVeinmineable(state)) return false;
 
         List<ItemStack> drops = Block.getDroppedStacks(state, world, pos, world.getBlockEntity(pos), player, player.getMainHandStack());
         world.breakBlock(pos, false, player);
