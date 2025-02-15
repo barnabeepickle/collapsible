@@ -24,10 +24,12 @@ public class CollateralTasks implements ServerTickEvents.StartTick {
 
     @Override
     public void onStartTick(MinecraftServer server) {
-        while (!this.tasks.isEmpty()) {
-            CollateralTask task = this.tasks.removeFirst();
-            if (!task.poll()) {
-                this.tasks.addFirst(task);
+        int i = 0;
+        while (i < this.tasks.size()) {
+            if (this.tasks.getFirst().poll()) {
+                this.tasks.removeFirst();
+            } else {
+                i++;
             }
         }
     }
