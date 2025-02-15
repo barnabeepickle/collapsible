@@ -1,4 +1,11 @@
 {
   "category.collateral": "Collateral",
-  "key.collateral.veinmine": "Veinmine"
+  "key.collateral.veinmine": "Veinmine",
+  "title.collateral.config": "Collateral Config",
+  "config.collateral.block_limit": "Block Limit",
+  "config.collateral.block_limit.tooltip": "The maximum number of blocks that can be broken from veinmining",
+  "config.collateral.block_limit_per_tick": "Block Limit Per Tick",
+  "config.collateral.block_limit_per_tick.tooltip": "The maximum number of blocks broken per tick from veinmining",
+  "config.collateral.connected_tags": "Connected Tags",
+  "config.collateral.connected_tags.tooltip": "Breaking a block in a connected tag will break all connected blocks in that tag"
 }

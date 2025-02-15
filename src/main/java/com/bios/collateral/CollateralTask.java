@@ -1,4 +1,4 @@
-package com.bios;
+package com.bios.collateral;
 
 public interface CollateralTask {
     /**

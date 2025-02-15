@@ -1,5 +1,6 @@
-package com.bios;
+package com.bios.collateral;
 
+import com.bios.collateral.config.Config;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.ItemEntity;
@@ -11,9 +12,6 @@ import net.minecraft.util.math.BlockPos;
 import java.util.*;
 
 public class Veinmine implements CollateralTask {
-    private static final int MAX_BREAKS_PER_TICK = 27;
-    private static final int MAX_BREAKS = 512;
-
     private final ServerWorld world;
     private final ServerPlayerEntity player;
     private final int lastSlot;
@@ -74,7 +72,7 @@ public class Veinmine implements CollateralTask {
         }
 
         int brokenThisTick = 0;
-        while (brokenThisTick < MAX_BREAKS_PER_TICK) {
+        while (brokenThisTick < Config.getConfig().blockLimitPerTick) {
             if (this.toSearch.isEmpty()) {
                 break;
             }
@@ -105,7 +103,7 @@ public class Veinmine implements CollateralTask {
                 brokenThisTick += 1;
                 totalBroken += 1;
 
-                if (totalBroken >= MAX_BREAKS) {
+                if (totalBroken >= Config.getConfig().blockLimit) {
                     return true;
                 }
             }

@@ -1,6 +1,6 @@
 {
 	"required": true,
-	"package": "com.bios.mixin",
+	"package": "com.bios.collateral.mixin",
 	"compatibilityLevel": "JAVA_21",
 	"mixins": [
 

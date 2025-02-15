@@ -16,10 +16,13 @@
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-			"com.bios.Collateral"
+			"com.bios.collateral.Collateral"
 		],
 		"client": [
-			"com.bios.CollateralClient"
+			"com.bios.collateral.CollateralClient"
+		],
+		"modmenu": [
+			"com.bios.collateral.CollateralModMenu"
 		]
 	},
 	"mixins": [
