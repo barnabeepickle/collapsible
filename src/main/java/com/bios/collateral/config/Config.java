@@ -53,7 +53,6 @@ public class Config {
     public Set<Block> blockList = new HashSet<>();
 
     public boolean isBlockVeinmineable(BlockState blockState) {
-        Collateral.LOGGER.info("ban: {}", this.banList);
         if (this.banList) {
             return !blockList.contains(blockState.getBlock());
         } else {
