@@ -43,7 +43,7 @@ dependencies {
 	modApi include("me.shedaniel.cloth:config-2:1.8") {
 		exclude(group: "io.github.prospector")
 	}
-	modApi include("maven.modrinth:mod-menu-1.1x:1.14.4-1.1.0")
+	modApi include("maven.modrinth:mod-menu-1.1x:1.14.2-1.2.0")
 }
 
 processResources {
