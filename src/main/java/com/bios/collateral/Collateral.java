@@ -16,9 +16,11 @@ public class Collateral implements ModInitializer {
 
 	public static final HashMap<UUID, Boolean> VEINMINE_PRESSED = new HashMap<>();
 
+	/*
 	public static Identifier id(String path) {
 		return Identifier.of(MOD_ID, path);
 	}
+	*/
 
 	@Override
 	public void onInitialize() {

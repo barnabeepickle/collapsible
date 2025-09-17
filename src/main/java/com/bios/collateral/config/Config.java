@@ -6,10 +6,9 @@ import com.google.gson.GsonBuilder;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.tag.BlockTags;
-import net.minecraft.registry.tag.TagKey;
+import net.minecraft.block.Blocks;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.tag.Tag.TagEntry;
 import net.minecraft.util.Identifier;
 
 import java.io.IOException;
@@ -37,15 +36,14 @@ public class Config {
 
     public int blockLimitPerTick = 27;
 
-    public Set<TagKey<Block>> connectedTags = Stream.of(
-            BlockTags.COAL_ORES,
-            BlockTags.COPPER_ORES,
-            BlockTags.IRON_ORES,
-            BlockTags.GOLD_ORES,
-            BlockTags.REDSTONE_ORES,
-            BlockTags.LAPIS_ORES,
-            BlockTags.EMERALD_ORES,
-            BlockTags.DIAMOND_ORES
+    public Set<Block> connectedTags = Stream.of(
+            Blocks.COAL_ORE,
+            Blocks.IRON_ORE,
+            Blocks.GOLD_ORE,
+            Blocks.REDSTONE_ORE,
+            Blocks.LAPIS_ORE,
+            Blocks.EMERALD_ORE,
+            Blocks.DIAMOND_ORE
     ).collect(Collectors.toSet());
 
     public boolean banList = true;
@@ -64,7 +62,7 @@ public class Config {
         Gson gson = new Gson();
         String json;
         try {
-            json = Files.readString(configPath());
+            json = new String(Files.readAllBytes(configPath()));
         } catch (NoSuchFileException e) {
             Collateral.LOGGER.info("config file not found, creating a new one");
             Config config = new Config();
@@ -91,7 +89,7 @@ public class Config {
                 .create();
         String json = gson.toJson(new JsonConfig(this));
         try {
-            Files.writeString(configPath(), json, StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
+            Files.write(configPath(), Bytes(json), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
         } catch (IOException e) {
             Collateral.LOGGER.warn("error writing config file: ", e);
         }
@@ -124,7 +122,7 @@ public class Config {
             this.blockList = config
                     .blockList
                     .stream()
-                    .map(Registries.BLOCK::getId)
+                    .map(Registry.BLOCK::getId)
                     .map(Identifier::toString)
                     .collect(Collectors.toSet());
         }
@@ -136,14 +134,14 @@ public class Config {
             config.connectedTags = this
                     .connectedTags
                     .stream()
-                    .map(s -> TagKey.of(RegistryKeys.BLOCK, Identifier.of(s)))
+                    .map(s -> TagEntry.of(Registry.BLOCK, Identifier.of(s)))
                     .collect(Collectors.toSet());
             config.banList = this.banList;
             config.blockList = this.blockList
                     .stream()
                     .map(Identifier::tryParse)
                     .filter(Objects::nonNull)
-                    .map(Registries.BLOCK::get)
+                    .map(Registry.BLOCK::get)
                     .collect(Collectors.toSet());
             return config;
         }
