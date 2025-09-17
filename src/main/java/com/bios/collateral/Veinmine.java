@@ -5,7 +5,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.registry.tag.TagKey;
+import net.minecraft.tag.Tag.TagEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
@@ -34,7 +34,7 @@ public class Veinmine implements CollateralTask {
         this.player = player;
         this.lastSlot = lastSlot;
 
-        List<TagKey<Block>> tags = blockState
+        List<TagEntry<Block>> tags = blockState
                 .streamTags()
                 .filter(tag -> Config.getConfig().connectedTags.contains(tag))
                 .toList();
@@ -51,8 +51,8 @@ public class Veinmine implements CollateralTask {
     }
 
     public static void veinmine(ServerPlayerEntity player, BlockPos pos) {
-        int lastSlot = player.getInventory().selectedSlot;
-        BlockState blockState = player.getWorld().getBlockState(pos);
+        int lastSlot = player.Inventory().selectedSlot;
+        BlockState blockState = player.getEntityWorld().getBlockState(pos);
 
         Veinmine task = new Veinmine(player.getServerWorld(), player, pos, lastSlot, blockState);
 
@@ -65,7 +65,7 @@ public class Veinmine implements CollateralTask {
         if (!Config.getConfig().isBlockVeinmineable(state)) return false;
 
         List<ItemStack> drops = Block.getDroppedStacks(state, world, pos, world.getBlockEntity(pos), player, player.getMainHandStack());
-        world.breakBlock(pos, false, player);
+        world.breakBlock(pos, false);
         player.getMainHandStack().damage(1, world, player, (item) -> toolBroken = true);
 
         for (ItemStack stack : drops) {
